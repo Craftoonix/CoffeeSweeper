@@ -68,12 +68,12 @@ void list::printBF() {
     {
         cout << hulp->info << endl;
         hulp = hulp->previous;
-    }//while
+    }
     // TODO
 }//list::printBF
 
 void list::add(int n){
-    element * p;
+    element* p;
     p = new element;
     p->previous = nullptr;
     p->info = (10 * n);
@@ -135,15 +135,14 @@ int readNumber(int maxi)
 
 class boardbox
 {
-public:
-    bool openedVisible;
-    bool isCoffee;
-    bool marked;
-    int amount; //..8
-    boardbox * neighbor[8];
-    int x, y;
-    boardbox();
-    boardbox* find(int x, int y, boardbox* entrance);
+    public:
+        bool openedVisible;
+        bool isCoffee;
+        bool marked;
+        int amount; //..8
+        boardbox* neighbor[8];
+        int x, y;
+        boardbox();
 };//class boardbox
 
 //constructor
@@ -166,129 +165,31 @@ class coffeeboard
 {
 private:
     int h, w;
-    boardbox * entrance;
-    //int coffeeAmount, moves;
-    //void put();
-    void createRow(int y, boardbox *&help);
+    coffeeboard* entrance;
+    int coffeeAmount, moves;
+    //boardbox* goto(int i, int j);
+    void put();
+    void createRow();
     void createBoard();
-    //int perc;
-    //void repair();
-    //void neighborzero();
+    int perc;
+    void repair();
+    void neighborzero();
 
 public:
     coffeeboard();
-    //~coffeeboard();
+    ~coffeeboard();
 
-    //void humanMove();
-    //void compMove();
+    void humanMove();
+    void compMove();
     void init(int he, int wi, int pe);
-    //void scatterCoffee();
+    void scatterCoffee();
 };//class coffeeboard
 
-coffeeboard::coffeeboard()
-{
-    entrance = nullptr;
-    w = 30;
-    h = 20;
-}
-
-boardbox * find(int x, int y, boardbox* entrance)
-{
-    boardbox* p = entrance;
-    while (p != nullptr)
-    {
-        while (p->x != x)
-        {
-            p = p->neighbor[2];
-        }
-        while (p->y != y)
-        {
-            p = p->neighbor[4];
-        }
-        return p;
-    }
-    return nullptr;
-}
-
-void coffeeboard::init(int he, int wi, int pe)
-{
-
-    createBoard();
-}
-
-void coffeeboard::createRow(int y, boardbox *&help)
-{
-    boardbox box;
-    int i;
-    boardbox* boxPointer;
-    boxPointer = new boardbox;
-    int j;
-    help = boxPointer;
-    for (i = 0; i < w; i++)
-    {
-        for (j = 0; j < 8; j++)
-        {
-            boxPointer->neighbor[j] = nullptr;
-        }
-        boxPointer->x = box.x;
-        boxPointer->y = y;
-        box.x++;
-        boxPointer->neighbor[2] = entrance;
-        entrance->neighbor[6] = boxPointer;
-        if (entrance != nullptr)
-        {
-            entrance->neighbor[2] = boxPointer;
-        }//if
-        entrance = boxPointer;
-        cout << boxPointer->x << ":" << boxPointer->y << " ";
-    }
-}//coffeeboard::createRow
-
-void coffeeboard::createBoard()
-{
-    boardbox * highPointer, * lowPointer, * verticalPointer;
-    boardbox box;
-    int i, j;
-    verticalPointer = entrance;
-    lowPointer = entrance;
-    highPointer = entrance;
-
-    for (i = 0; i < h; i++)
-    {
-        createRow(box.y, verticalPointer);
-        if (i != 0)
-        {
-            lowPointer = verticalPointer;
-            for (j = 0; j < w; j++)
-            {
-                highPointer->neighbor[4] = lowPointer;
-                lowPointer->neighbor[0] = highPointer;
-                if (highPointer->neighbor[2] != nullptr) 
-                {
-                    highPointer->neighbor[3] = lowPointer->neighbor[2];
-                    lowPointer->neighbor[1] = highPointer->neighbor[2];
-                }
-                if (highPointer->neighbor[6] != nullptr)
-                {
-                    highPointer->neighbor[5] = lowPointer->neighbor[6];
-                    lowPointer->neighbor[7] = highPointer->neighbor[6];
-                }
-                if (highPointer->neighbor[2] != nullptr)
-                {
-                    highPointer = highPointer->neighbor[2];
-                    lowPointer = lowPointer->neighbor[2];
-                }
-            }
-        }
-        box.y++;
-        cout << endl;
-    }
-}
-
-int main() 
-{
-    coffeeboard board;
-    board.init(1, 1, 1);
+int main() {
+    list L;
+    L.buildlist(3);
+    L.printFB();
+    L.printBF();
     return 0;
 }//main
 
