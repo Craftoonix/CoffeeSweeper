@@ -105,10 +105,9 @@ int readNumber(int maxi)
     char input;
     //pakt het eerstvolgende karakter
     cin.get(input);
-    //het volgede karakter is \n dus pakken we het karakter erna
-    cin.get(input);
     //het cijfer dat ontstaat
     int number = 0;
+
     //functie eindigt bij de \n na de eerste \n
     while (input != '\n')
     {
@@ -169,9 +168,9 @@ private:
     boardbox * entrance;
     //int coffeeAmount, moves;
     //void put();
-    void createRow(int y, boardbox *&help);
+    void createRow(int y, boardbox *&help, boardbox *&entrance);
     void createBoard();
-    //int perc;
+    int perc;
     //void repair();
     //void neighborzero();
 
@@ -188,8 +187,9 @@ public:
 coffeeboard::coffeeboard()
 {
     entrance = nullptr;
-    w = 30;
-    h = 20;
+    w = 0;
+    h = 0;
+    perc = 10;
 }
 
 boardbox * find(int x, int y, boardbox* entrance)
@@ -212,18 +212,25 @@ boardbox * find(int x, int y, boardbox* entrance)
 
 void coffeeboard::init(int he, int wi, int pe)
 {
-
+    h = he;
+    w = wi;
+    perc = pe;
     createBoard();
 }
 
-void coffeeboard::createRow(int y, boardbox *&help)
+void coffeeboard::createRow(int y, boardbox *&help, boardbox *&entrance)
 {
     boardbox box;
     int i;
-    boardbox* boxPointer;
+    boardbox* boxPointer, *boxPointer2;
     boxPointer = new boardbox;
     int j;
+    boxPointer2 = boxPointer;
     help = boxPointer;
+    if (entrance == nullptr)
+    {
+        entrance = boxPointer;
+    }
     for (i = 0; i < w; i++)
     {
         for (j = 0; j < 8; j++)
@@ -233,14 +240,14 @@ void coffeeboard::createRow(int y, boardbox *&help)
         boxPointer->x = box.x;
         boxPointer->y = y;
         box.x++;
-        boxPointer->neighbor[2] = entrance;
-        entrance->neighbor[6] = boxPointer;
-        if (entrance != nullptr)
-        {
-            entrance->neighbor[2] = boxPointer;
-        }//if
-        entrance = boxPointer;
         cout << boxPointer->x << ":" << boxPointer->y << " ";
+        if (i < (w - 1))
+        {
+            boxPointer->neighbor[2] = new boardbox;
+            boxPointer2 = boxPointer->neighbor[2];
+            boxPointer2->neighbor[6] = boxPointer;
+            boxPointer = boxPointer2;
+        }
     }
 }//coffeeboard::createRow
 
@@ -249,15 +256,15 @@ void coffeeboard::createBoard()
     boardbox * highPointer, * lowPointer, * verticalPointer;
     boardbox box;
     int i, j;
-    verticalPointer = entrance;
-    lowPointer = entrance;
-    highPointer = entrance;
-
+    verticalPointer = nullptr;
+    lowPointer = nullptr;
+    highPointer = nullptr;
     for (i = 0; i < h; i++)
     {
-        createRow(box.y, verticalPointer);
+        createRow(box.y, verticalPointer, entrance);
         if (i != 0)
         {
+            highPointer = entrance;
             lowPointer = verticalPointer;
             for (j = 0; j < w; j++)
             {
@@ -288,7 +295,14 @@ void coffeeboard::createBoard()
 int main() 
 {
     coffeeboard board;
-    board.init(1, 1, 1);
+    int h, w, p;
+    cout << "Hoe hoog moet het bord zijn?" << endl;
+    h = readNumber(1000);
+    cout << "hoe breed moet het bord zijn?" << endl;
+    w = readNumber(1000);
+    cout << "Wat is de percentage voor de hoeveelheid koffie?" << endl;
+    p = readNumber(100);
+    board.init(h, w, p);
     return 0;
 }//main
 
