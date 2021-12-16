@@ -168,8 +168,8 @@ private:
     boardbox * entrance;
     //int coffeeAmount, moves;
     //void put();
-    void createRow(int y, boardbox *&help, boardbox *&entrance);
-    void createBoard();
+    void createRow(int y, boardbox *&verticalPointer, boardbox *&entrance);
+    void createBoard(boardbox *&entrance);
     int perc;
     //void repair();
     //void neighborzero();
@@ -177,10 +177,11 @@ private:
 public:
     coffeeboard();
     //~coffeeboard();
+    void print(boardbox * entrance);
 
     //void humanMove();
     //void compMove();
-    void init(int he, int wi, int pe);
+    void init(int he, int wi, int pe, boardbox *&entrance);
     //void scatterCoffee();
 };//class coffeeboard
 
@@ -189,7 +190,7 @@ coffeeboard::coffeeboard()
     entrance = nullptr;
     w = 0;
     h = 0;
-    perc = 10;
+    perc = 0;
 }
 
 boardbox * find(int x, int y, boardbox* entrance)
@@ -210,23 +211,24 @@ boardbox * find(int x, int y, boardbox* entrance)
     return nullptr;
 }
 
-void coffeeboard::init(int he, int wi, int pe)
+void coffeeboard::init(int he, int wi, int pe, boardbox *&entrance)
 {
     h = he;
     w = wi;
     perc = pe;
-    createBoard();
+    createBoard(entrance);
 }
 
-void coffeeboard::createRow(int y, boardbox *&help, boardbox *&entrance)
+void coffeeboard::createRow(int y, boardbox *&verticalPointer, boardbox *&entrance)
 {
     boardbox box;
-    int i;
+    int i, j;
     boardbox* boxPointer, *boxPointer2;
     boxPointer = new boardbox;
-    int j;
+    srand(time(NULL));
+    int random = 0;
     boxPointer2 = boxPointer;
-    help = boxPointer;
+    verticalPointer = boxPointer;
     if (entrance == nullptr)
     {
         entrance = boxPointer;
@@ -239,6 +241,14 @@ void coffeeboard::createRow(int y, boardbox *&help, boardbox *&entrance)
         }
         boxPointer->x = box.x;
         boxPointer->y = y;
+        if (perc > 0)
+        {
+            random = rand() % (100 / perc);
+        }
+        if (random == 0)
+        {
+            boxPointer->isCoffee = true;
+        }
         box.x++;
         cout << boxPointer->x << ":" << boxPointer->y << " ";
         if (i < (w - 1))
@@ -251,7 +261,7 @@ void coffeeboard::createRow(int y, boardbox *&help, boardbox *&entrance)
     }
 }//coffeeboard::createRow
 
-void coffeeboard::createBoard()
+void coffeeboard::createBoard(boardbox *&entrance)
 {
     boardbox * highPointer, * lowPointer, * verticalPointer;
     boardbox box;
@@ -264,7 +274,14 @@ void coffeeboard::createBoard()
         createRow(box.y, verticalPointer, entrance);
         if (i != 0)
         {
-            highPointer = entrance;
+            if (i == 1)
+            {
+                highPointer = entrance;
+            }
+            else
+            {
+                highPointer = lowPointer;
+            }
             lowPointer = verticalPointer;
             for (j = 0; j < w; j++)
             {
@@ -292,9 +309,55 @@ void coffeeboard::createBoard()
     }
 }
 
+void coffeeboard::print(boardbox * entrance)
+{
+    boardbox* helpX , *helpY;
+    int i;
+    helpX = entrance;
+    helpY = entrance;
+
+    while ((helpX->x) <= 6)
+    {
+        cout << helpX->x << " ";
+        helpX = helpX->neighbor[2];
+    }
+    while (helpX != nullptr)
+    {
+        cout << helpX->x << " ";
+        helpX = helpX->neighbor[6];
+    }
+
+    cout << " ";
+    for (i = 0; i < w; i++)
+    {
+        cout << " " << (i%10);
+    }
+    cout << "\n";
+    while (helpY != nullptr)
+    {
+        cout << helpY->y << " ";
+        while (helpX != nullptr)
+        {
+            if (helpX->isCoffee == true)
+            {
+                cout << "@ ";
+            }
+            else
+            {
+                cout << ". ";
+            }
+            helpX = helpX->neighbor[2];
+        }
+        cout << "\n";
+        helpY = helpY->neighbor[4];
+        helpX = helpY;
+    }
+}
+
 int main() 
 {
     coffeeboard board;
+    boardbox* entrance = nullptr;
     int h, w, p;
     cout << "Hoe hoog moet het bord zijn?" << endl;
     h = readNumber(1000);
@@ -302,7 +365,8 @@ int main()
     w = readNumber(1000);
     cout << "Wat is de percentage voor de hoeveelheid koffie?" << endl;
     p = readNumber(100);
-    board.init(h, w, p);
+    board.init(h, w, p, entrance);
+    board.print(entrance);
     return 0;
 }//main
 
