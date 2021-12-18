@@ -1,8 +1,19 @@
 // Opdracht 4.cpp : This file contains the 'main' function. Program execution begins and ends there.
-// Hi ho
+// NOTES:
+// - Double digits coords in zet
+// - Wat gebeurt er als er letters worden ingetikt in Zet
+// - Wat gebeurt er bij readChar als je een cijfer intikt
+// - computerzet
+// - percentage coffe in de min (wat is default?)
+// - Board view double digits
+// - 1e zet NOOIT koffie!!!
+
+// EXTRA
+// - Maak een file met constanten
 
 #include <iostream>
 #include <cstdlib>
+#include "coffeeboard.h"
 
 using namespace std;
 
@@ -98,240 +109,48 @@ void list::buildlist(int n) {
     }//for
 }//list::buildlist
 
-//converteert de char nummers naar int nummers met maximale waarde
-int readNumber(int maxi)
+void menu(char & input)
 {
-    //de input van de gebruiker
-    char input;
-    //pakt het eerstvolgende karakter
-    cin.get(input);
-    //het cijfer dat ontstaat
-    int number = 0;
-
-    //functie eindigt bij de \n na de eerste \n
-    while (input != '\n')
+    cout << "Wie speelt het spel? (M)ens of (C)omputer? ";
+    input = readChar();
+    switch (input)
     {
-        if (input < '0' || input > '9' || (number * 10 + (input - 48)) > maxi)
-        {
-        }//if
-        else
-        {
-            number = number * 10 + (input - 48);
-        }//else
-        input = cin.get();
-    }//while
-
-    //om delen door 0 te omzeilen
-    if (number == 0)
-    {
-        return 1;
-    }//if
-    else
-    {
-        return number;
-    }//else
-}//readNumber
-
-class boardbox
-{
-public:
-    bool openedVisible;
-    bool isCoffee;
-    bool marked;
-    int amount; //..8
-    boardbox * neighbor[8];
-    int x, y;
-    boardbox(); //constructor
-    boardbox* find(int x, int y, boardbox* entrance);
-};//class boardbox
-
-//constructor
-boardbox::boardbox()
-{
-    openedVisible = false;
-    isCoffee = false;
-    marked = false;
-    amount = 0;
-    int i;
-    for (i = 0; i < 8; i++)
-    {
-        neighbor[i] = nullptr;
-    }
-    x = 0;
-    y = 0;
-}//boardbox::boardbox
-
-class coffeeboard
-{
-private:
-    int h, w;
-    //int coffeeAmount, moves;
-    //void put();
-    void createRow(int y, boardbox *&verticalPointer, boardbox *&entrance);
-    void createBoard(boardbox *&entrance);
-    int perc;
-    //void repair();
-    //void neighborzero();
-
-public:
-    coffeeboard();
-    //~coffeeboard();
-    void print(boardbox * entrance);
-
-    //void humanMove();
-    //void compMove();
-    void init(int he, int wi, int pe, boardbox *&entrance);
-    //void scatterCoffee();
-};//class coffeeboard
-
-coffeeboard::coffeeboard()
-{
-    w = 0;
-    h = 0;
-    perc = 0;
-}
-
-boardbox * find(int x, int y, boardbox* entrance)
-{
-    boardbox* p = entrance;
-    while (p != nullptr)
-    {
-        while (p->x != x)
-        {
-            p = p->neighbor[2];
-        }
-        while (p->y != y)
-        {
-            p = p->neighbor[4];
-        }
-        return p;
-    }
-    return nullptr;
-}
-
-void coffeeboard::init(int he, int wi, int pe, boardbox *&entrance)
-{
-    h = he;
-    w = wi;
-    perc = pe;
-    createBoard(entrance);
-}
-
-void coffeeboard::createRow(int y, boardbox *&verticalPointer, boardbox *&entrance)
-{
-    boardbox box;
-    int i, j;
-    boardbox* boxPointer, *boxPointer2;
-    boxPointer = new boardbox;
-    int random = 0;
-    boxPointer2 = boxPointer;
-    verticalPointer = boxPointer;
-    if (entrance == nullptr)
-    {
-        entrance = boxPointer;
-    }
-    for (i = 0; i < w; i++)
-    {
-        boxPointer->x = box.x;
-        boxPointer->y = y;
-        if (perc > 0)
-        {
-            srand(time(NULL) % rand());
-            random = rand() % ((100 / perc) - 1);
-        }
-        if (random == 0)
-        {
-            boxPointer->isCoffee = true;
-        }
-        box.x++;
-        cout << boxPointer->x << ":" << boxPointer->y << " ";
-        if (i < (w - 1))
-        {
-            boxPointer->neighbor[2] = new boardbox;
-            boxPointer2 = boxPointer->neighbor[2];
-            boxPointer2->neighbor[6] = boxPointer;
-            boxPointer = boxPointer2;
-        }
-    }
-}//coffeeboard::createRow
-
-void coffeeboard::createBoard(boardbox *&entrance)
-{
-    boardbox * highPointer, * lowPointer, * verticalPointer;
-    boardbox box;
-    int i, j, k;
-    verticalPointer = nullptr;
-    lowPointer = nullptr;
-    highPointer = nullptr;
-    for (i = 0; i < h; i++)
-    {
-        createRow(box.y, verticalPointer, entrance);
-        if (i != 0)
-        {
-            lowPointer = verticalPointer;
-
-            highPointer = entrance;
-            for (k = 0; k < (i-1); k++) 
-            {
-                highPointer = highPointer->neighbor[4];
-            }
-
-            for (j = 0; j < w; j++)
-            {
-                highPointer->neighbor[4] = lowPointer;
-                lowPointer->neighbor[0] = highPointer;
-                if (highPointer->neighbor[6] != nullptr)
-                {
-                    highPointer->neighbor[5] = lowPointer->neighbor[6];
-                    lowPointer->neighbor[7] = highPointer->neighbor[6];
-                }
-                if (highPointer->neighbor[2] != nullptr) 
-                {
-                    highPointer->neighbor[3] = lowPointer->neighbor[2];
-                    lowPointer->neighbor[1] = highPointer->neighbor[2];
-                    highPointer = highPointer->neighbor[2];
-                    lowPointer = lowPointer->neighbor[2];
-                }
-            }
-        }
-        box.y++;
-        cout << endl;
+    case 'm': case 'M':
+        cout << "\nMens" << endl;
+        break;
+    case 'c': case 'C':
+        cout << "\nIk speel voor jou noob! " << endl;
+        break;
+    default:
+        break;
     }
 }
 
-void coffeeboard::print(boardbox * entrance)
+void submenu(char & input, coffeeboard & board, boardbox* entrance)
 {
-    boardbox* helpX , *helpY;
-    int i;
-    helpX = entrance;
-    helpY = entrance;
-
- 
-
-    cout << " ";
-    for (i = 0; i < w; i++)
+    cout << "Kies uit: (Z)et, (R)andom, (M)arkeer, (T)erug, (S)top  ";
+    input = readChar();
+    switch (input)
     {
-        cout << " " << (i%10);
-    }
-    cout << "\n";
-    while (helpY != nullptr)
-    {
-        cout << helpY->y << " ";
-        while (helpX != nullptr)
-        {
-            if (helpX->isCoffee == true)
-            {
-                cout << "@ ";
-            }
-            else
-            {
-                cout << ". ";
-            }
-            helpX = helpX->neighbor[2];
-        }
-        cout << "\n";
-        helpY = helpY->neighbor[4];
-        helpX = helpY;
+    case 'z': case 'Z':
+        cout << "\nZet " << endl;
+        board.humanMove(entrance, board);
+        board.print(entrance);
+        break;
+    case 'r': case 'R':
+        cout << "\nRandom " << endl;
+        break;
+    case 'm': case 'M':
+        board.mark(entrance);
+        board.print(entrance);
+        break;
+    case 't': case 'T':
+        cout << "\nTerug " << endl;
+        break;
+    case 's': case 'S':
+        board.exit = true;
+        cout << "\nStop " << endl;
+        break;
     }
 }
 
@@ -340,17 +159,49 @@ int main()
     coffeeboard board;
     boardbox* entrance = nullptr;
     int h, w, p;
-    cout << "Hoe hoog moet het bord zijn?" << endl;
+    char input = 'a';
+
+    cout << "Hoe hoog moet het bord zijn (max 50)? ";
     h = readNumber(50);
-    cout << "hoe breed moet het bord zijn?" << endl;
+    cout << "Hoe breed moet het bord zijn (max 100)? ";
     w = readNumber(100);
-    cout << "Wat is de percentage voor de hoeveelheid koffie?" << endl;
+    cout << "Wat is de percentage voor de hoeveelheid koffie (max 100)? ";
     p = readNumber(100);
     board.init(h, w, p, entrance);
-    board.print(entrance);
+    while (input <= 'b' || (input >= 'd' && input <= 'l') || (input >= 'n'
+    && input <= 'B') || (input >= 'D' && input <= 'L') || input >= 'N')
+    {
+        menu(input);
+        if (input == 'm' || input == 'M')
+        {
+            break;
+        }
+    }
+
+    if (input == 'm' || input == 'M')
+    {   
+        board.print(entrance);
+        while (board.exit == false)
+        {
+            submenu(input, board, entrance);
+            
+        }
+    }
     return 0;
 }//main
 
+//input <= 'r' || (input >= 't' && input <= 'R') || input >= 'T'
+//if (board.exit == true)
+//            {
+//                break;
+//            }
+            
+//char leesOptie() {
+//	char invoer2[3];
+//	cin.get(invoer2, 3);
+//	cin.ignore();
+//	return invoer2[0];
+//}//leesOptie
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

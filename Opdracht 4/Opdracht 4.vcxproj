@@ -139,7 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="coffeeboard.cpp" />
     <ClCompile Include="Opdracht 4.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="coffeeboard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
