@@ -21,27 +21,29 @@ class coffeeboard
 {
 private:
     int h, w;
-    int coffeeAmount = 0;
-    int nocoffeeAmount = 0;
-    int visibleAmount = 0;
-    //moves;
+    int coffeeAmount, nocoffeeAmount;
+    int visibleAmount, moves;
     //void put();
     void createRow(int y, boardbox*& verticalPointer, boardbox*& entrance);
     void createBoard(boardbox*& entrance);
     int perc;
-    
-    //void repair();
-    //void neighborzero();
+    void neighborzero(boardbox * neighbor, coffeeboard & board);
+    void clean(boardbox* entrance, coffeeboard board);
+    void rescatterCoffee(boardbox* entrance);
 
 public:
     coffeeboard();
     //~coffeeboard();
     void print(boardbox* entrance);
     bool exit;
+    bool win;
+    int games;
     void humanMove(boardbox * entrance, coffeeboard & board);
     void mark(boardbox* entrance);
-    void computerMove(boardbox * entrance);
+    void randomMove(boardbox * entrance, coffeeboard& board);
+    void generalMove(boardbox* boxpointer, coffeeboard& board);
+    void computerMove(boardbox * entrance, coffeeboard& board);
     void init(int he, int wi, int pe, boardbox*& entrance);
-    void scatterCoffee(boardbox * entrance);
+    void checkCoffee(boardbox * entrance);
 };//class coffeeboard
 

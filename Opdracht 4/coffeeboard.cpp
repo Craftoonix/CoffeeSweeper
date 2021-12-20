@@ -96,6 +96,12 @@ coffeeboard::coffeeboard()
     w = 0;
     h = 0;
     perc = 0;
+    coffeeAmount = 0;
+    nocoffeeAmount = 0;
+    visibleAmount = 0;
+    moves = 0;
+    games = 0;
+    win = 0;
     exit = false;
 }
 
@@ -170,7 +176,7 @@ void coffeeboard::init(int he, int wi, int pe, boardbox*& entrance)
     w = wi;
     perc = pe;
     createBoard(entrance);
-    scatterCoffee(entrance);
+    checkCoffee(entrance);
 }
 
 void coffeeboard::createRow(int y, boardbox*& verticalPointer, boardbox*& entrance)
@@ -193,11 +199,11 @@ void coffeeboard::createRow(int y, boardbox*& verticalPointer, boardbox*& entran
         if (perc > 0)
         {
             srand(time(NULL) % rand());
-            random = rand() % (100 / perc);
-            if (random == 0)
-            {
-                boxPointer->isCoffee = true;
-            }
+                random = rand() % (10000 / perc);
+                if (random <= 100)
+                {
+                    boxPointer->isCoffee = true;
+                }
         }
         box.x++;
         if (i < (w - 1))
@@ -210,7 +216,7 @@ void coffeeboard::createRow(int y, boardbox*& verticalPointer, boardbox*& entran
     }
 }//coffeeboard::createRow
 
-void coffeeboard::scatterCoffee(boardbox* entrance)
+void coffeeboard::checkCoffee(boardbox* entrance)
 {
     boardbox* boxPointer = entrance;
     int neighborCounter, xCoord, yCoord;
@@ -296,37 +302,108 @@ void coffeeboard::createBoard(boardbox*& entrance)
     }
 }
 
+void coffeeboard::neighborzero(boardbox * zero, coffeeboard & board)
+{
+    int i;
+    for (i = 0; i < 8; i++)
+    {
+        if (zero->neighbor[i] != nullptr)
+        {
+            if ((zero->neighbor[i])->isCoffee == false && (zero->neighbor[i])->openedVisible == false && zero->amount == 0)
+            {
+                (zero->neighbor[i])->openedVisible = true;
+                visibleAmount++;
+                neighborzero(zero->neighbor[i], board);
+            }
+        }
+    }
+}
+
 void coffeeboard::humanMove(boardbox * entrance, coffeeboard & board)
 {
     int inputX, inputY;
+    moves++;
     cout << "Wat is de x-coordinaat van uw zet? ";
     inputX = readNumber(w - 1);
     cout << "Wat is de y-coordinaat van uw zet? ";
     inputY = readNumber(h - 1);
-    find(inputX, inputY, entrance)->openedVisible = true;
-    if (find(inputX, inputY, entrance)->isCoffee)
+    generalMove(find(inputX, inputY, entrance), board);
+}
+
+void coffeeboard::randomMove(boardbox* entrance, coffeeboard& board)
+{
+    int inputX, inputY;
+    inputX = rand() % w;
+    inputY = rand() % h;
+    while (find(inputX, inputY, entrance)->openedVisible == true)
     {
-        cout << "die pls\n"
-            << "computer: ok\n";
-        board.exit = true;
+        inputX = rand() % w;
+        inputY = rand() % h;
     }
-    if (find(inputX, inputY, entrance)->isCoffee == false)
+    generalMove(find(inputX, inputY, entrance), board);
+}
+
+void coffeeboard::generalMove(boardbox* boxpointer, coffeeboard& board)
+{
+    moves++;
+    boxpointer->openedVisible = true;
+    if (moves == 1 && boxpointer->isCoffee)
+    {
+        boxpointer->isCoffee = false;
+        coffeeAmount--;
+    }
+    if (boxpointer->isCoffee)
+    {
+        //cout << "die pls\n"
+           // << "computer: ok\n";
+        exit = true;
+    }
+    neighborzero(boxpointer, board);
+    if (boxpointer->isCoffee == false)
     {
         visibleAmount++;
     }
-    if (visibleAmount == nocoffeeAmount)
+    if (visibleAmount >= nocoffeeAmount)
     {
-        cout << "\nYou got lucky..." << endl;
-        board.exit = true;
+        //cout << "\nYou got lucky..." << endl;
+        win = true;
+        exit = true;
     }
+
 }
 
-void coffeeboard::computerMove(boardbox* entrance)
+void coffeeboard::computerMove(boardbox* entrance, coffeeboard& board)
 { 
-    int inputX, inputY;
-    inputX = rand();
-    inputY = rand();
-    find(inputX, inputY, entrance);
+    int i;
+    int wins[100000] = { 0 };
+    int loses[100000] = { 0 };
+    for (i = 0; i < games; i++)
+    {
+        while (exit == false)
+        {
+            randomMove(entrance, board);
+        }
+        exit = false;
+        if (win == true)
+        {
+            wins[moves]++;
+            win = false;
+        }
+        else
+        {
+            loses[moves]++;
+        }
+        clean(entrance, board);
+    }
+    for (i = 1; i <= 16; i++)
+    {
+        cout << i << " " << loses[i] << endl;
+    }
+    cout << endl;
+    for (i = 1; i <= 16; i++)
+    {
+        cout << i << " " << wins[i] << endl;
+    }
 }
 
 void coffeeboard::mark(boardbox* entrance)
@@ -337,4 +414,68 @@ void coffeeboard::mark(boardbox* entrance)
     cout << "Wat is de y-coordinaat van uw marker? ";
     inputY = readNumber(h - 1);
     find(inputX, inputY, entrance)->marked = !find(inputX, inputY, entrance)->marked;
+}
+
+void coffeeboard::clean(boardbox* entrance, coffeeboard board)
+{
+    boardbox* boxPointer = entrance;
+    int xCoord, yCoord;
+    int yCounter = 0;
+    int i;
+    for (yCoord = 0; yCoord < h; yCoord++) //omlaag gaan
+    {
+        for (i = 0; i < yCounter; i++)
+        {
+            if (boxPointer->neighbor[4] != nullptr)
+            {
+                boxPointer = boxPointer->neighbor[4];
+            }
+        }
+        for (xCoord = 0; xCoord < w; xCoord++) //naar rechts gaan
+        {
+            boxPointer->isCoffee = false;
+            boxPointer->marked = false;
+            boxPointer->openedVisible = false;
+            if (boxPointer->neighbor[2] != nullptr)
+            {
+                boxPointer = boxPointer->neighbor[2];
+            }
+        }
+        yCounter++;
+        boxPointer = entrance;
+    }
+    visibleAmount = 0;
+    moves = 0;
+    exit = false;
+    win = false;
+}
+
+void coffeeboard::rescatterCoffee(boardbox* entrance) 
+{
+    boardbox* boxPointer = entrance;
+    int xCoord, yCoord;
+    int yCounter = 0;
+    int i;
+    for (yCoord = 0; yCoord < h; yCoord++) //omlaag gaan
+    {
+        for (i = 0; i < yCounter; i++)
+        {
+            if (boxPointer->neighbor[4] != nullptr)
+            {
+                boxPointer = boxPointer->neighbor[4];
+            }
+        }
+        for (xCoord = 0; xCoord < w; xCoord++) //naar rechts gaan
+        {
+            boxPointer->isCoffee = false;
+            boxPointer->marked = false;
+            boxPointer->openedVisible = false;
+            if (boxPointer->neighbor[2] != nullptr)
+            {
+                boxPointer = boxPointer->neighbor[2];
+            }
+        }
+        yCounter++;
+        boxPointer = entrance;
+    }
 }

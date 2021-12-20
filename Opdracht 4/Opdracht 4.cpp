@@ -3,10 +3,9 @@
 // - Double digits coords in zet
 // - Wat gebeurt er als er letters worden ingetikt in Zet
 // - Wat gebeurt er bij readChar als je een cijfer intikt
-// - computerzet
-// - percentage coffe in de min (wat is default?)
 // - Board view double digits
-// - 1e zet NOOIT koffie!!!
+// - titels voor computerspeler aantal wins and loses
+// - coffeeteken bij loss ipvv neighbourcount
 
 // EXTRA
 // - Maak een file met constanten
@@ -21,93 +20,6 @@ void information()
 {
 
 }//information
-
-class element 
-{
-public:
-    element* previous;
-    int info;
-    element* next;
-};//element
-
-class list 
-{
-private:
-    element* entrance;
-    element* exit;
-public:
-    list();
-    void printFB();
-    void printBF();
-    void add(int n);
-    void buildlist(int n);
-};//list
-
-//   +-----+      +-----+----+-----+        +-----+----+-----+      +-----+
-//   |   --+----> | NULL| 10 |   --+------> |  |  | 20 | NULL| <----+--   |
-//   +-----+      +-----+--+-+-----+        +-----+--+-+-----+      +-----+
-//  L.ingang                    ^---------------                   L.uitgang
-//       
-// L.ingang (L van klasse lijst) wijst dus het eerste element uit een serie 
-// elementen aan, waarbij ieder element informatie bevat (het info-veld), 
-// en twee pointers: naar het vorige en volgende element;
-// voor het voorbeeld hierboven zijn in totaal twee new's nodig. 
-
-//constructor
-list::list()
-{
-    entrance = nullptr;
-    exit = nullptr;
-}//list::list
-
-//drukt lijst af van voor naar achter
-void list::printFB() {
-    element* help = entrance;
-    cout << "VA afdrukken..." << endl;
-    while (help != nullptr)
-    {
-        cout << help->info << endl;
-        help = help->next;
-    }
-}//list::printFB
-
-//drukt lijst af van achter naar voor
-void list::printBF() {
-    element* hulp = exit;
-    cout << "AV afdrukken..." << endl;
-    while (hulp != nullptr)
-    {
-        cout << hulp->info << endl;
-        hulp = hulp->previous;
-    }//while
-    // TODO
-}//list::printBF
-
-void list::add(int n){
-    element * p;
-    p = new element;
-    p->previous = nullptr;
-    p->info = (10 * n);
-    p->next = entrance;
-    if (entrance != nullptr)
-    {
-        entrance->next = p;
-    }//if
-    else
-    {
-        exit = p;
-    }//else
-    entrance = p;
-}//list::add
-
-//maakt lijst met n elementen
-void list::buildlist(int n) {
-    int i;
-    for (i = 1; i <= n; i++)
-    {
-        add(i);
-    }//for
-}//list::buildlist
 
 void menu(char & input)
 {
@@ -133,12 +45,12 @@ void submenu(char & input, coffeeboard & board, boardbox* entrance)
     switch (input)
     {
     case 'z': case 'Z':
-        cout << "\nZet " << endl;
         board.humanMove(entrance, board);
         board.print(entrance);
         break;
     case 'r': case 'R':
-        cout << "\nRandom " << endl;
+        board.randomMove(entrance, board);
+        board.print(entrance);
         break;
     case 'm': case 'M':
         board.mark(entrance);
@@ -152,6 +64,13 @@ void submenu(char & input, coffeeboard & board, boardbox* entrance)
         cout << "\nStop " << endl;
         break;
     }
+}
+
+void computerMenu(boardbox*& entrance, coffeeboard& board)
+{
+    cout << "Hoeveel games zal de computer spelen? ";
+    board.games = readNumber(100000);
+    board.computerMove(entrance, board);
 }
 
 int main() 
@@ -176,6 +95,10 @@ int main()
         {
             break;
         }
+        if (input == 'c' || input == 'C')
+        {
+            break;
+        }
     }
 
     if (input == 'm' || input == 'M')
@@ -184,8 +107,11 @@ int main()
         while (board.exit == false)
         {
             submenu(input, board, entrance);
-            
         }
+    }
+    else if (input == 'c' || input == 'C')
+    {
+        computerMenu(entrance, board);
     }
     return 0;
 }//main
