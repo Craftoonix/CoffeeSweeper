@@ -6,6 +6,7 @@
 // - Board view double digits
 // - titels voor computerspeler aantal wins and loses
 // - coffeeteken bij loss ipvv neighbourcount
+//Hi
 
 // EXTRA
 // - Maak een file met constanten
